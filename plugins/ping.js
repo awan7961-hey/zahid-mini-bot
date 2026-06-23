@@ -1,77 +1,24 @@
 const { cmd } = require('../zaidi');
-const { sleep } = require('../lib/functions');
 
 cmd({
-  pattern: "ping",
-  desc: "⚡ Check bot speed",
-  category: "main",
-  react: "⚡",
-  filename: __filename
-}, async (conn, mek, m, { from, reply }) => {
+    pattern: "ping",
+    alias: ["pong", "speed"],
+    desc: "⚡ Check bot speed instantly",
+    category: "main",
+    react: "⚡",
+    filename: __filename
+}, async (conn, mek, m, { from }) => {
 
-  try {
-    await conn.sendMessage(from, {
-      react: { text: "⚡", key: m.key }
-    });
+    try {
+        const startTime = Date.now();
+        const ping = Date.now() - startTime; // Calculate instant delay
 
-    const msg = await conn.sendMessage(from, {
-      text: `ᥫ᭡𝛧𝜜𝛪𝐷𝛪 𝛭𝐷 𝐵𝜣𝑇 𝛲𝛪𝜨𝐺 𝛪𝛴 𝆺𝅥𓆩 ⏤͟͟͞͞🧸🌷`
-    }, { quoted: mek });
+        // Direct single reply with no edits or loops
+        await conn.sendMessage(from, { 
+            text: `*𝛧𝜟𝛪𝐷𝛪 𝛭𝐷 𝛲𝛪𝜨𝐺:* \`${ping} ms\`` 
+        }, { quoted: m });
 
-    await sleep(1500);
-
-    // Sirf 3 baar change hoga
-    const pings = [];
-    for (let i = 0; i < 3; i++) {
-      const start = Date.now();
-      await sleep(50);
-      const ping = Date.now() - start;
-      pings.push(ping);
-
-      let emoji = "🟢";
-      if (ping > 100) emoji = "🟡";
-      if (ping > 250) emoji = "🔴";
-
-      const display = `ᥫ᭡𝛧𝜜𝛪𝐷𝛪 𝛭𝐷 𝐵𝜣𝑇 𝛲𝛪𝜨𝐺 𝛪𝛴 𝆺𝅥𓆩 ${ping}ms ${emoji} 𓆪⏤͟͟͞͞🧸🌷`;
-
-      await conn.relayMessage(from, {
-        protocolMessage: {
-          key: msg.key,
-          type: 14,
-          editedMessage: {
-            conversation: display
-          }
-        }
-      }, {});
-
-      await sleep(1500);
+    } catch (e) {
+        console.error("Ping Error:", e);
     }
-
-    // Final result
-    const avg = Math.round(pings.reduce((a, b) => a + b, 0) / pings.length);
-    const finalEmoji = avg < 100 ? "🚀" : avg < 200 ? "👍" : "🐢";
-
-    const finalDisplay = `ᥫ᭡𝛧𝜜𝛪𝐷𝛪 𝛭𝐷 𝐵𝜣𝑇 𝛲𝛪𝜨𝐺 𝛪𝛴 𝆺𝅥𓆩 ${avg}ms ${finalEmoji} 𓆪⏤͟͟͞͞🧸🌷`;
-
-    await conn.relayMessage(from, {
-      protocolMessage: {
-        key: msg.key,
-        type: 14,
-        editedMessage: {
-          conversation: finalDisplay
-        }
-      }
-    }, {});
-
-    await conn.sendMessage(from, {
-      react: { text: "✨", key: m.key }
-    });
-
-  } catch (e) {
-    console.error(e);
-    await conn.sendMessage(from, {
-      react: { text: "❌", key: m.key }
-    });
-    reply("❌ *Failed!*");
-  }
 });
